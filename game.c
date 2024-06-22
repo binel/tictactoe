@@ -1,10 +1,14 @@
 #include "game.h"
 
+#include <stdio.h>
+
 void T_InitGame(Game* game) {
 	memset(game->positions, EMPTY_CELL, sizeof(game->positions));
 	game->x_start = 0;
 	game->y_start = 0;
 	game->size = 0;
+	game->is_won = -1;
+	game->win_position = NO_WIN;
 }
 
 void T_FreeGame(Game* game) {
@@ -34,8 +38,8 @@ void T_DrawGame(Game* game) {
 	x = game->x_start; 
 	y = game->y_start; 
 	int pos = 0;
-	for (int column = 0; column < 3; column++) {
-		for (int row = 0; row < 3; row++) {
+	for (int row = 0; row < 3; row++) {
+		for (int column = 0; column < 3; column++) {
 			if (game->positions[pos] == PLAYER_CELL) {
 				DrawLine(x, y, x + cell_width, y + cell_width, WHITE);
 				DrawLine(x, y + cell_width, x + cell_width, y, WHITE);
@@ -48,6 +52,72 @@ void T_DrawGame(Game* game) {
 		x = game->x_start;
 		y += cell_width;
 	}
+	
+	// draw win if any 
+	Color color = game->is_won == PLAYER_CELL ? RED : BLUE;
+	switch (game->win_position) {
+		case ROW_1: 
+			DrawLine(game->x_start,
+				game->y_start + half_cell_width,
+				game->x_start + game->size, 
+				game->y_start + half_cell_width,
+				color);
+			break;
+		case ROW_2: 
+			DrawLine(game->x_start,
+				game->y_start + half_cell_width + cell_width,
+				game->x_start + game->size, 
+				game->y_start + half_cell_width + cell_width,
+				color);
+			break;	
+		case ROW_3: 
+			DrawLine(game->x_start,
+				game->y_start + half_cell_width + cell_width + cell_width,
+				game->x_start + game->size, 
+				game->y_start + half_cell_width + cell_width + cell_width,
+				color);
+			break;	
+		case COLUMN_1: 
+			DrawLine(game->x_start + half_cell_width,
+				game->y_start,
+				game->x_start + half_cell_width, 
+				game->y_start + game->size,
+				color);
+			break;
+		case COLUMN_2: 
+			DrawLine(game->x_start + half_cell_width + cell_width,
+				game->y_start,
+				game->x_start + half_cell_width + cell_width, 
+				game->y_start + game->size,
+				color);
+			break;
+		case COLUMN_3: 
+			DrawLine(game->x_start + half_cell_width + cell_width + cell_width,
+				game->y_start,
+				game->x_start + half_cell_width + cell_width + cell_width, 
+				game->y_start + game->size,
+				color);
+			break;
+		case DIAG_DOWN:
+			DrawLine(game->x_start,
+				game->y_start,
+				game->x_start + game->size, 
+				game->y_start + game->size,
+				color);
+			break; 
+		case DIAG_UP:
+			DrawLine(game->x_start,
+				game->y_start + game->size,
+				game->x_start + game->size, 
+				game->y_start,
+				color);
+			break; 
+		case NO_WIN:
+		default:
+			break;
+	}
+	
+	
 }
 
 int T_GetCellPosition(Game* game, int xpos, int ypos) {
@@ -56,8 +126,8 @@ int T_GetCellPosition(Game* game, int xpos, int ypos) {
 	int x = game->x_start; 
 	int y = game->y_start; 
 	int pos = 0;
-	for (int column = 0; column < 3; column++) {
-		for (int row = 0; row < 3; row++) {
+	for (int row = 0; row < 3; row++) {
+		for (int column = 0; column < 3; column++) {
 			if (xpos > x && xpos < x + cell_width && ypos > y && ypos < y + cell_width) {
 				return pos;
 			}
@@ -69,4 +139,114 @@ int T_GetCellPosition(Game* game, int xpos, int ypos) {
 	}
 	
 	return -1;
+}
+
+static bool IsRowSame(Game* game, int startPos) {
+	return game->positions[startPos] != EMPTY_CELL
+		&& game->positions[startPos] == game->positions[startPos + 1]
+		&& game->positions[startPos + 1] == game->positions[startPos + 2];
+}
+
+static bool IsColumnSame(Game* game, int colNum) {
+	return game->positions[colNum] != EMPTY_CELL
+		&& game->positions[colNum] == game->positions[colNum + 3] 
+		&& game->positions[colNum + 3] == game->positions[colNum + 6];
+}
+
+void T_CheckGameWon(Game* game) {
+	game->is_won = -1;
+	game->win_position = NO_WIN;
+
+	// probably a better way to do this 
+	// row 1 
+	if (IsRowSame(game, 0)) {
+		if (game->positions[0] == PLAYER_CELL) {
+			game->is_won = PLAYER_CELL;
+			game->win_position = ROW_1;
+		} else if (game->positions[0] == OPP_CELL) {
+			game->is_won = OPP_CELL;
+			game->win_position = ROW_1;
+		}
+	}
+	
+	// row 2
+	else if (IsRowSame(game, 3)) {
+		if (game->positions[3] == PLAYER_CELL) {
+			game->is_won = PLAYER_CELL;
+			game->win_position = ROW_2;
+		} else if (game->positions[3] == OPP_CELL) {
+			game->is_won = OPP_CELL;
+			game->win_position = ROW_2;
+		}
+	}
+	
+	// row 3
+	else if (IsRowSame(game, 6)) {
+		if (game->positions[6] == PLAYER_CELL) {
+			game->is_won = PLAYER_CELL;
+			game->win_position = ROW_3;
+		} else if (game->positions[6] == OPP_CELL) {
+			game->is_won = OPP_CELL;
+			game->win_position = ROW_3;
+		}
+	}
+	
+	// column 1
+	else if (IsColumnSame(game, 0)) {
+		if (game->positions[0] == PLAYER_CELL) {
+			game->is_won = PLAYER_CELL;
+			game->win_position = COLUMN_1;
+		} else if (game->positions[0] == OPP_CELL) {
+			game->is_won = OPP_CELL;
+			game->win_position = COLUMN_1;
+		}
+	}
+	
+	// column 2
+	else if (IsColumnSame(game, 1)) {
+		if (game->positions[1] == PLAYER_CELL) {
+			game->is_won = PLAYER_CELL;
+			game->win_position = COLUMN_2;
+		} else if (game->positions[1] == OPP_CELL) {
+			game->is_won = OPP_CELL;
+			game->win_position = COLUMN_2;
+		}
+	}		
+	
+	// column 3
+	else if (IsColumnSame(game, 2)) {
+		if (game->positions[2] == PLAYER_CELL) {
+			game->is_won = PLAYER_CELL;
+			game->win_position = COLUMN_3;
+		} else if (game->positions[2] == OPP_CELL) {
+			game->is_won = OPP_CELL;
+			game->win_position = COLUMN_3;
+		}
+	}
+	
+	// diagonal down
+	else if (game->positions[0] != EMPTY_CELL
+		&& game->positions[0] == game->positions[4] 
+		&& game->positions[4] == game->positions[8]) {
+		if (game->positions[0] == PLAYER_CELL) {
+			game->is_won = PLAYER_CELL;
+			game->win_position = DIAG_DOWN;
+		} else if (game->positions[0] == OPP_CELL) {
+			game->is_won = OPP_CELL;
+			game->win_position = DIAG_DOWN;
+		}			
+	}
+
+	// diagonal up
+	else if (game->positions[2] != EMPTY_CELL
+		&& game->positions[2] == game->positions[4] 
+		&& game->positions[4] == game->positions[6]) {
+		if (game->positions[2] == PLAYER_CELL) {
+			game->is_won = PLAYER_CELL;
+			game->win_position = DIAG_UP;
+		} else if (game->positions[2] == OPP_CELL) {
+			game->is_won = OPP_CELL;
+			game->win_position = DIAG_UP;
+		}			
+	}
 }
