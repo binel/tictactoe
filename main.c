@@ -8,17 +8,25 @@
 int main(int argc, char* argv[]) {
 	srand(time(NULL));
 
-	const int screen_width = 500;
-	const int screen_height = 500;
+	int screen_width = 500;
+	int screen_height = 500;
 	Game game;
 	T_InitGame(&game);
-	game.size = 500;
+	game.size = screen_width;
 
+	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(screen_width, screen_height, "tic tac toe");
 	
 	SetTargetFPS(60);
 	
 	while(!WindowShouldClose()) {
+	
+		if(IsWindowResized()) {
+			screen_width = GetScreenWidth();
+			screen_height = GetScreenHeight();
+			
+			game.size = screen_height > screen_width ? screen_width : screen_height;
+		}
 	
 		if (game.is_won == -1 && game.turn == OPP_CELL) {
 			T_MakeRandomMove(&game);
