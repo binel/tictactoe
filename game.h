@@ -28,6 +28,7 @@ typedef struct {
 	int size; 
 	int is_won;
 	enum WinPositions win_position;
+	int turn;
 } Game; 
 
 
@@ -42,5 +43,7 @@ int T_GetCellPosition(Game* game, int xpos, int ypos);
 // Checks if the game is won. Updates game.is_won with either -1 (no win),
 // PLAYER_CELL if the player won, OPP_CELL if the opponent won 
 void T_CheckGameWon(Game* game);
+
+void T_MakeRandomMove(Game* game);
 
 #endif

@@ -1,6 +1,8 @@
 #include "game.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+
 
 void T_InitGame(Game* game) {
 	memset(game->positions, EMPTY_CELL, sizeof(game->positions));
@@ -9,6 +11,7 @@ void T_InitGame(Game* game) {
 	game->size = 0;
 	game->is_won = -1;
 	game->win_position = NO_WIN;
+	game->turn = PLAYER_CELL;
 }
 
 void T_FreeGame(Game* game) {
@@ -116,8 +119,6 @@ void T_DrawGame(Game* game) {
 		default:
 			break;
 	}
-	
-	
 }
 
 int T_GetCellPosition(Game* game, int xpos, int ypos) {
@@ -248,5 +249,33 @@ void T_CheckGameWon(Game* game) {
 			game->is_won = OPP_CELL;
 			game->win_position = DIAG_UP;
 		}			
+	}
+}
+
+static int GetOpenCountPositions(Game* game) {
+	int open_count = 0;
+	for (int i = 0; i < 9; i++) {
+		if (game->positions[i] == EMPTY_CELL) {
+			open_count++;
+		}
+	}
+	
+	return open_count;	
+}
+
+void T_MakeRandomMove(Game* game) {
+	int open_count = GetOpenCountPositions(game);
+	
+	int move = rand() % open_count;
+	
+	for(int i = 0; i < 9; i++) {
+		if (game->positions[i] == EMPTY_CELL) { 
+			if (move == 0) {
+				game->positions[i] = OPP_CELL;
+				return;
+			} else {
+				move--;
+			}
+		} 
 	}
 }
