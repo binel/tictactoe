@@ -58,67 +58,62 @@ void T_DrawGame(Game* game) {
 	
 	// draw win if any 
 	Color color = game->is_won == PLAYER_CELL ? RED : BLUE;
+	Vector2 start;
+	Vector2 end;
+	float thickness = 5.0f;
 	switch (game->win_position) {
 		case ROW_1: 
-			DrawLine(game->x_start,
-				game->y_start + half_cell_width,
-				game->x_start + game->size, 
-				game->y_start + half_cell_width,
-				color);
+			start.x = game->x_start;
+			start.y = game->y_start + half_cell_width;
+			end.x = game->x_start + game->size;
+			end.y = game->y_start + half_cell_width;
 			break;
 		case ROW_2: 
-			DrawLine(game->x_start,
-				game->y_start + half_cell_width + cell_width,
-				game->x_start + game->size, 
-				game->y_start + half_cell_width + cell_width,
-				color);
-			break;	
+			start.x = game->x_start;
+			start.y = game->y_start + half_cell_width + cell_width;
+			end.x = game->x_start + game->size;
+			end.y = game->y_start + half_cell_width + cell_width; 		
 		case ROW_3: 
-			DrawLine(game->x_start,
-				game->y_start + half_cell_width + cell_width + cell_width,
-				game->x_start + game->size, 
-				game->y_start + half_cell_width + cell_width + cell_width,
-				color);
+			start.x = game->x_start;
+			start.y = game->y_start + half_cell_width + cell_width + cell_width;
+			end.x = game->x_start + game->size;
+			end.y = game->y_start + half_cell_width + cell_width + cell_width; 	
 			break;	
 		case COLUMN_1: 
-			DrawLine(game->x_start + half_cell_width,
-				game->y_start,
-				game->x_start + half_cell_width, 
-				game->y_start + game->size,
-				color);
+			start.x = game->x_start + half_cell_width;
+			start.y = game->y_start;
+			end.x = game->x_start + half_cell_width;
+			end.y = game->y_start + game->size; 
 			break;
 		case COLUMN_2: 
-			DrawLine(game->x_start + half_cell_width + cell_width,
-				game->y_start,
-				game->x_start + half_cell_width + cell_width, 
-				game->y_start + game->size,
-				color);
+			start.x = game->x_start + half_cell_width + cell_width;
+			start.y = game->y_start;
+			end.x = game->x_start + half_cell_width + cell_width;
+			end.y = game->y_start + game->size; 
 			break;
 		case COLUMN_3: 
-			DrawLine(game->x_start + half_cell_width + cell_width + cell_width,
-				game->y_start,
-				game->x_start + half_cell_width + cell_width + cell_width, 
-				game->y_start + game->size,
-				color);
+			start.x = game->x_start + half_cell_width + cell_width + cell_width;
+			start.y = game->y_start;
+			end.x = game->x_start + half_cell_width + cell_width + cell_width;
+			end.y = game->y_start + game->size; 
 			break;
 		case DIAG_DOWN:
-			DrawLine(game->x_start,
-				game->y_start,
-				game->x_start + game->size, 
-				game->y_start + game->size,
-				color);
+			start.x = game->x_start;
+			start.y = game->y_start;
+			end.x = game->x_start + game->size;
+			end.y = game->y_start + game->size; 
 			break; 
 		case DIAG_UP:
-			DrawLine(game->x_start,
-				game->y_start + game->size,
-				game->x_start + game->size, 
-				game->y_start,
-				color);
+			start.x = game->x_start;
+			start.y = game->y_start + game->size;
+			end.x = game->x_start + game->size;
+			end.y = game->y_start; 
 			break; 
 		case NO_WIN:
 		default:
 			break;
 	}
+	DrawLineEx(start, end, thickness, color);
 }
 
 int T_GetCellPosition(Game* game, int xpos, int ypos) {
