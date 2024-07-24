@@ -73,6 +73,7 @@ void T_DrawGame(Game* game) {
 			start.y = game->y_start + half_cell_width + cell_width;
 			end.x = game->x_start + game->size;
 			end.y = game->y_start + half_cell_width + cell_width; 		
+			break;
 		case ROW_3: 
 			start.x = game->x_start;
 			start.y = game->y_start + half_cell_width + cell_width + cell_width;
