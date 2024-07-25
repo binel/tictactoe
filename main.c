@@ -5,6 +5,8 @@
 
 #include "game.h"
 
+const bool SCREEN_RECORD = false;
+
 int main(int argc, char* argv[]) {
 	srand(time(NULL));
 
@@ -17,7 +19,8 @@ int main(int argc, char* argv[]) {
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(screen_width, screen_height, "tic tac toe");
 	
-	SetTargetFPS(60);
+	SetTargetFPS(30);
+	int frameCounter = 0;
 	
 	while(!WindowShouldClose()) {
 	
@@ -46,12 +49,20 @@ int main(int argc, char* argv[]) {
 		
 		T_CheckGameWon(&game);	
 
+		T_DrawGame(&game);
+	
+		if (SCREEN_RECORD) {
+			char filename[32];
+			snprintf(filename, sizeof(filename), "frame%04d.png", frameCounter++);
+			TakeScreenshot(filename);			
+		}
+
 		BeginDrawing();
 		ClearBackground(BLACK);
 		
-		T_DrawGame(&game);
-		
 		EndDrawing();
+		
+
 	}
 	
 	T_FreeGame(&game);
